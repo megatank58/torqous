@@ -1,2 +1,2 @@
-# physics-engine
+# Torqous
 A physics engine made in rust.
