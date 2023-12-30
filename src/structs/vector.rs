@@ -41,6 +41,10 @@ impl Vector {
         (self.x.powi(2) + self.y.powi(2)).powf(0.5)
     }
 
+    pub fn is_none(&self) -> bool {
+        self.value() == 0.0
+    }
+
     pub fn direction(&self) -> f64 {
         self.y / self.x
     }

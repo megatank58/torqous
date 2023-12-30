@@ -48,26 +48,33 @@ impl Object {
         if !self.on_ground() {
             return self;
         }
+
         let static_friction = Vector::from(s_friction * self.mass * gravity, 0)
             .mul(-self.particle.acceleration.x_dir());
-        if self.particle.acceleration.mul(self.mass).value() > static_friction.value() {
+
+        if !self.particle.velocity.is_none() || self.particle.acceleration.mul(self.mass).value() > static_friction.value() {
             self.force(
                 Vector::from(k_friction * self.mass * gravity, 0)
-                    .mul(-self.particle.acceleration.x_dir()),
+                    .mul(-self.particle.velocity.x_dir()),
             );
         } else {
-            self.force(self.particle.acceleration.mul(self.mass * -1.0));
+            self.force(self.particle.acceleration.mul(-self.mass));
         }
 
         self
     }
 
     pub fn on_ground(&self) -> bool {
-        self.particle.position.y == 0.0
+        self.particle.position.y <= 0.0
     }
 
     pub fn calculate(&mut self, time: f64) -> &mut Self {
         self.particle.calculate(time);
+
+        if self.on_ground() {
+            self.particle.velocity.y = 0.0;
+            self.particle.position.y = 0.0;
+        }
 
         self
     }

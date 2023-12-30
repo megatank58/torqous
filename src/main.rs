@@ -11,13 +11,14 @@ fn main() {
     let mut runtime = Runtime::new();
     let mut block = Object::new(10, Cube);
 
-    block.set_position(Vector::from(0, 125));
+    block.set_position(Vector::from(0, 0));
+    block.force(Vector::from(51, 0));
 
     runtime
         .set_object("Block", block)
-        .set_s_friction(0.4);
+        .set_s_friction(0.5);
 
-    runtime = runtime.run(5.0);
+    runtime = runtime.run(10.0);
 
     println!("{runtime:?}");
 }
