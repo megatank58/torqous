@@ -1,56 +1,63 @@
-use std::ops::{Add, AddAssign, Div, Mul};
-
 #[derive(Debug, Copy, Clone)]
 pub struct Vector {
-    pub x: u128,
-    pub y: u128,
+    pub x: f64,
+    pub y: f64,
 }
 
 impl Vector {
     pub fn new() -> Self {
-        Vector { x: 0, y: 0 }
+        Vector { x: 0.0, y: 0.0 }
     }
 
-    pub fn from(x: u128, y: u128) -> Self {
-        Vector { x, y }
-    }
-}
-
-impl AddAssign for Vector {
-    fn add_assign(&mut self, other: Self) {
-        *self = *self + other;
-    }
-}
-
-impl Add for Vector {
-    type Output = Self;
-
-    fn add(self, other: Self) -> Self {
-        Self {
-            x: self.x + other.x,
-            y: self.y + other.y,
-        }
-    }
-}
-
-impl Mul<u128> for Vector {
-    fn mul(self, rhs: u128) -> Vector {
-        Self {
-            x: self.x * rhs,
-            y: self.y * rhs,
+    pub fn from<T: Into<f64>, Y: Into<f64>>(x: T, y: Y) -> Self {
+        Vector {
+            x: x.into(),
+            y: y.into(),
         }
     }
 
-    type Output = Self;
-}
+    pub fn add(mut self, other: Self) -> Self {
+        self.x += other.x;
+        self.y += other.y;
 
-impl Div<u128> for Vector {
-    fn div(self, rhs: u128) -> Vector {
-        Self {
-            x: self.x / rhs,
-            y: self.y / rhs,
+        self
+    }
+
+    pub fn mul<T: Into<f64> + Copy>(mut self, other: T) -> Self {
+        self.x *= other.into();
+        self.y *= other.into();
+
+        self
+    }
+
+    pub fn div<T: Into<f64> + Copy>(mut self, other: T) -> Self {
+        self.x /= other.into();
+        self.y /= other.into();
+
+        self
+    }
+
+    pub fn value(&self) -> f64 {
+        (self.x.powi(2) + self.y.powi(2)).powf(0.5)
+    }
+
+    pub fn direction(&self) -> f64 {
+        self.y / self.x
+    }
+
+    pub fn x_dir(&self) -> f64 {
+        if self.x > 0.0 {
+            1.0
+        } else {
+            -1.0
         }
     }
 
-    type Output = Self;
+    pub fn y_dir(&self) -> f64 {
+        if self.y > 0.0 {
+            1.0
+        } else {
+            -1.0
+        }
+    }
 }

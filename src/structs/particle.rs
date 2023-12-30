@@ -3,9 +3,9 @@ use super::vector::Vector;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Particle {
-    position: Vector,
-    velocity: Vector,
-    acceleration: Vector,
+    pub position: Vector,
+    pub velocity: Vector,
+    pub acceleration: Vector,
 }
 
 impl Particle {
@@ -18,14 +18,15 @@ impl Particle {
     }
 
     pub fn accelerate(&mut self, a: Vector) -> &Particle {
-        self.acceleration += a;
+        self.acceleration = self.acceleration.add(a);
 
         self
     }
 
-    pub fn calculate(&mut self, time: u128) -> &Particle {
-        self.position = self.velocity * time + (self.acceleration * time * time)/2;
-        self.velocity += self.acceleration * time;  
+    pub fn calculate(&mut self, time: f64) -> &Particle {
+        self.position = self.position.add(self.velocity.mul(time)).add(self.acceleration.mul(time.powi(2)).div(2));
+        self.velocity = self.velocity.add(self.acceleration.mul(time));
+        self.acceleration = Vector::new();
 
         self
     }

@@ -9,16 +9,15 @@ mod structs;
 
 fn main() {
     let mut runtime = Runtime::new();
+    let mut block = Object::new(10, Cube);
 
-    runtime.set_object("A", Object::new(10, Cube));
+    block.set_position(Vector::from(0, 125));
 
-    runtime = runtime.run_for(10, |mut runtime| {
-        let mut a = *runtime.get_object("A").unwrap();
-        a.force(Vector::from(50, 0));
-        runtime.set_object("A", a);
+    runtime
+        .set_object("Block", block)
+        .set_s_friction(0.4);
 
-        runtime
-    });
+    runtime = runtime.run(5.0);
 
     println!("{runtime:?}");
 }
