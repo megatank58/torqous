@@ -2,9 +2,9 @@ use super::{particle::Particle, vector::Vector};
 
 #[derive(Debug, Copy, Clone)]
 pub enum ShapeType {
-    Cube,
-    Cuboid,
-    Sphere,
+    Circle(f64),
+    Triangle(f64,f64,f64),
+    Quadrilateral(f64,f64,f64,f64)
 }
 
 #[derive(Debug, Copy, Clone)]

@@ -1,6 +1,6 @@
 use runtime::Runtime;
 use structs::{
-    object::{Object, ShapeType::Cube},
+    object::{Object, ShapeType::Circle},
     vector::Vector,
 };
 
@@ -9,7 +9,10 @@ mod structs;
 
 fn main() {
     let mut runtime = Runtime::new();
-    let mut block = Object::new(10, Cube);
+
+    runtime.init_ui();
+
+    let mut block = Object::new(10, Circle(0.0));
 
     block.set_position(Vector::from(0, 0));
     block.force(Vector::from(51, 0));

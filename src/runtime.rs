@@ -1,17 +1,17 @@
-use std::collections::HashMap;
-
 use crate::structs::{object::Object, particle::Particle};
-
+use eframe::egui;
+use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
 pub struct Runtime<'a> {
-    particles: HashMap<&'a str, Particle>,
-    objects: HashMap<&'a str, Object>,
-    k_friction: f64,
-    s_friction: f64,
-    gravity: f64,
-    time: f64,
-    steps: f64,
+    pub particles: HashMap<&'a str, Particle>,
+    pub objects: HashMap<&'a str, Object>,
+    pub k_friction: f64,
+    pub s_friction: f64,
+    pub gravity: f64,
+    pub time: f64,
+    pub steps: f64,
+    pub ui: Ui<'a>,
 }
 
 impl<'a> Runtime<'a> {
@@ -24,7 +24,19 @@ impl<'a> Runtime<'a> {
             gravity: 10.0,
             time: 0.0,
             steps: 1.0,
+            ui: Ui::default(),
         }
+    }
+
+    pub fn init_ui(&self) {
+        let native_options = eframe::NativeOptions::default();
+        eframe::run_native(
+            "Torqous",
+            native_options,
+            //TODO: Somwhow pass runtime through this
+            Box::new(|cc| Box::new(Ui::new(cc))),
+        )
+        .unwrap();
     }
 
     pub fn get_particle(&mut self, name: &'a str) -> Option<&Particle> {
@@ -97,5 +109,28 @@ impl<'a> Runtime<'a> {
             self.time += self.steps;
         }
         self
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct Ui<'a> {
+    pub runtimes: Vec<Runtime<'a>>,
+}
+
+impl<'a> Ui<'a> {
+    pub fn new(_: &eframe::CreationContext<'_>) -> Self {
+        Self { runtimes: vec![] }
+    }
+
+    pub fn default() -> Self {
+        Self { runtimes: vec![] }
+    }
+}
+
+impl<'a> eframe::App for Ui<'a> {
+    fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+        egui::CentralPanel::default().show(ctx, |ui| {
+            ui.heading(self.runtimes[0].gravity.to_string());
+        });
     }
 }
