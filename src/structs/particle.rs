@@ -23,8 +23,8 @@ impl Particle {
         self
     }
 
-    pub fn calculate(&mut self, time: f64) -> &Particle {
-        self.position = self.position.add(self.velocity.mul(time)).add(self.acceleration.mul(time.powi(2)).div(2));
+    pub fn calculate(&mut self, time: f32) -> &Particle {
+        self.position = self.position.add(self.velocity.mul(time)).add(self.acceleration.mul(time.powi(2)).div(2.0));
         self.velocity = self.velocity.add(self.acceleration.mul(time));
         self.acceleration = Vector::new();
 

@@ -2,21 +2,21 @@ use super::{particle::Particle, vector::Vector};
 
 #[derive(Debug, Copy, Clone)]
 pub enum ShapeType {
-    Circle(f64),
-    Triangle(f64,f64,f64),
-    Quadrilateral(f64,f64,f64,f64)
+    Circle(f32),
+    Triangle(f32,f32,f32),
+    Quadrilateral(f32,f32,f32,f32)
 }
 
 #[derive(Debug, Copy, Clone)]
 pub struct Object {
-    pub mass: f64,
+    pub mass: f32,
     pub shape: ShapeType,
 
     pub particle: Particle,
 }
 
 impl Object {
-    pub fn new<T: Into<f64>>(mass: T, shape: ShapeType) -> Self {
+    pub fn new<T: Into<f32>>(mass: T, shape: ShapeType) -> Self {
         Self {
             mass: mass.into(),
             shape,
@@ -36,25 +36,25 @@ impl Object {
         self
     }
 
-    pub fn gravity(&mut self, gravity: f64) -> &mut Self {
+    pub fn gravity(&mut self, gravity: f32) -> &mut Self {
         if self.on_ground() {
             self
         } else {
-            self.force(Vector::from(0, -gravity).mul(self.mass))
+            self.force(Vector::from(0.0, -gravity).mul(self.mass))
         }
     }
 
-    pub fn friction(&mut self, s_friction: f64, k_friction: f64, gravity: f64) -> &mut Self {
+    pub fn friction(&mut self, s_friction: f32, k_friction: f32, gravity: f32) -> &mut Self {
         if !self.on_ground() {
             return self;
         }
 
-        let static_friction = Vector::from(s_friction * self.mass * gravity, 0)
+        let static_friction = Vector::from(s_friction * self.mass * gravity, 0.0)
             .mul(-self.particle.acceleration.x_dir());
 
         if !self.particle.velocity.is_none() || self.particle.acceleration.mul(self.mass).value() > static_friction.value() {
             self.force(
-                Vector::from(k_friction * self.mass * gravity, 0)
+                Vector::from(k_friction * self.mass * gravity, 0.0)
                     .mul(-self.particle.velocity.x_dir()),
             );
         } else {
@@ -68,7 +68,7 @@ impl Object {
         self.particle.position.y <= 0.0
     }
 
-    pub fn calculate(&mut self, time: f64) -> &mut Self {
+    pub fn calculate(&mut self, time: f32) -> &mut Self {
         self.particle.calculate(time);
 
         if self.on_ground() {

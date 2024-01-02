@@ -10,18 +10,17 @@ mod structs;
 fn main() {
     let mut runtime = Runtime::new();
 
-    runtime.init_ui();
+    let mut block = Object::new(10.0, Circle(7.0));
 
-    let mut block = Object::new(10, Circle(0.0));
+    block.set_position(Vector::from(0.0, 0.0));
+    block.force(Vector::from(51.0, 0.0));
 
-    block.set_position(Vector::from(0, 0));
-    block.force(Vector::from(51, 0));
+    runtime.set_object("Block", block);
 
-    runtime
-        .set_object("Block", block)
-        .set_s_friction(0.5);
+    runtime.s_friction = 0.5;
+    runtime.k_friction = 0.5;
+    runtime.end_time = 5.0;
 
-    runtime = runtime.run(10.0);
-
-    println!("{runtime:?}");
+    let native_options = eframe::NativeOptions::default();
+    eframe::run_native("Torqous", native_options, Box::new(|_cc| Box::new(runtime))).unwrap();
 }

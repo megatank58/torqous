@@ -1,7 +1,7 @@
 #[derive(Debug, Copy, Clone)]
 pub struct Vector {
-    pub x: f64,
-    pub y: f64,
+    pub x: f32,
+    pub y: f32,
 }
 
 impl Vector {
@@ -9,7 +9,7 @@ impl Vector {
         Vector { x: 0.0, y: 0.0 }
     }
 
-    pub fn from<T: Into<f64>, Y: Into<f64>>(x: T, y: Y) -> Self {
+    pub fn from<T: Into<f32>, Y: Into<f32>>(x: T, y: Y) -> Self {
         Vector {
             x: x.into(),
             y: y.into(),
@@ -23,21 +23,21 @@ impl Vector {
         self
     }
 
-    pub fn mul<T: Into<f64> + Copy>(mut self, other: T) -> Self {
-        self.x *= other.into();
-        self.y *= other.into();
+    pub fn mul(mut self, other: f32) -> Self {
+        self.x *= other;
+        self.y *= other;
 
         self
     }
 
-    pub fn div<T: Into<f64> + Copy>(mut self, other: T) -> Self {
-        self.x /= other.into();
-        self.y /= other.into();
+    pub fn div(mut self, other: f32) -> Self {
+        self.x /= other;
+        self.y /= other;
 
         self
     }
 
-    pub fn value(&self) -> f64 {
+    pub fn value(&self) -> f32 {
         (self.x.powi(2) + self.y.powi(2)).powf(0.5)
     }
 
@@ -45,11 +45,11 @@ impl Vector {
         self.value() == 0.0
     }
 
-    pub fn direction(&self) -> f64 {
+    pub fn direction(&self) -> f32 {
         self.y / self.x
     }
 
-    pub fn x_dir(&self) -> f64 {
+    pub fn x_dir(&self) -> f32 {
         if self.x > 0.0 {
             1.0
         } else {
@@ -57,7 +57,7 @@ impl Vector {
         }
     }
 
-    pub fn y_dir(&self) -> f64 {
+    pub fn y_dir(&self) -> f32 {
         if self.y > 0.0 {
             1.0
         } else {

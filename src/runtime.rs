@@ -1,17 +1,18 @@
 use crate::structs::{object::Object, particle::Particle};
 use eframe::egui;
-use std::collections::HashMap;
+use egui::{Color32, Rect, Stroke, pos2};
+use std::{collections::HashMap, f32::INFINITY};
 
 #[derive(Debug, Clone)]
 pub struct Runtime<'a> {
     pub particles: HashMap<&'a str, Particle>,
     pub objects: HashMap<&'a str, Object>,
-    pub k_friction: f64,
-    pub s_friction: f64,
-    pub gravity: f64,
-    pub time: f64,
-    pub steps: f64,
-    pub ui: Ui<'a>,
+    pub k_friction: f32,
+    pub s_friction: f32,
+    pub gravity: f32,
+    internal_time: f32,
+    pub end_time: f32,
+    pub steps: f32,
 }
 
 impl<'a> Runtime<'a> {
@@ -22,22 +23,13 @@ impl<'a> Runtime<'a> {
             k_friction: 0.0,
             s_friction: 0.0,
             gravity: 10.0,
-            time: 0.0,
+            internal_time: 0.0,
+            end_time: 0.0,
             steps: 1.0,
-            ui: Ui::default(),
         }
     }
 
-    pub fn init_ui(&self) {
-        let native_options = eframe::NativeOptions::default();
-        eframe::run_native(
-            "Torqous",
-            native_options,
-            //TODO: Somwhow pass runtime through this
-            Box::new(|cc| Box::new(Ui::new(cc))),
-        )
-        .unwrap();
-    }
+    pub fn init_ui(&self) {}
 
     pub fn get_particle(&mut self, name: &'a str) -> Option<&Particle> {
         self.particles.get(&name)
@@ -58,79 +50,55 @@ impl<'a> Runtime<'a> {
 
         self
     }
+}
 
-    pub fn set_k_friction(&mut self, k_friction: f64) -> &mut Self {
-        self.k_friction = k_friction;
-
-        self
-    }
-
-    pub fn set_s_friction(&mut self, s_friction: f64) -> &mut Self {
-        self.s_friction = s_friction;
-
-        if self.k_friction == 0.0 {
-            self.k_friction = s_friction;
-        }
-
-        self
-    }
-
-    pub fn set_gravity(&mut self, gravity: f64) -> &mut Self {
-        self.gravity = gravity;
-
-        self
-    }
-
-    pub fn run(self, time: f64) -> Self {
-        self.run_for(time, |a| a)
-    }
-
-    pub fn run_for<F>(mut self, time: f64, f: F) -> Self
-    where
-        F: Fn(Runtime<'a>) -> Runtime<'a>,
-    {
-        while self.time != time {
-            self = f(self);
-
+impl<'a> eframe::App for Runtime<'a> {
+    fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+        if self.internal_time < self.end_time {
             let mut particles = HashMap::new();
-            for (name, mut particle) in self.particles {
-                particles.insert(name, *particle.calculate(self.steps));
+            for (name, particle) in &mut self.particles {
+                particles.insert(*name, *particle.calculate(self.steps));
             }
             self.particles = particles;
 
             let mut objects = HashMap::new();
-            for (name, mut object) in self.objects {
+            for (name, object) in &mut self.objects {
                 object.gravity(self.gravity);
                 object.friction(self.s_friction, self.k_friction, self.gravity);
-                objects.insert(name, *object.calculate(self.steps));
+                objects.insert(*name, *object.calculate(self.steps));
             }
             self.objects = objects;
 
-            self.time += self.steps;
+            self.internal_time += self.steps;
         }
-        self
-    }
-}
 
-#[derive(Debug, Clone)]
-pub struct Ui<'a> {
-    pub runtimes: Vec<Runtime<'a>>,
-}
-
-impl<'a> Ui<'a> {
-    pub fn new(_: &eframe::CreationContext<'_>) -> Self {
-        Self { runtimes: vec![] }
-    }
-
-    pub fn default() -> Self {
-        Self { runtimes: vec![] }
-    }
-}
-
-impl<'a> eframe::App for Ui<'a> {
-    fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading(self.runtimes[0].gravity.to_string());
+            let y = ui
+                .label("Time".to_string() + &self.internal_time.to_string())
+                .rect
+                .bottom();
+            let painter = ui.painter_at(Rect::everything_below(y));
+            let stroke = Stroke::new(30.0, Color32::GREEN);
+
+            painter.line_segment(
+                [pos2(-INFINITY, 0.0), pos2(INFINITY, 0.0)],
+                stroke,
+            );
+
+            for (name, object) in &self.objects {
+                let pos = object.particle.position;
+                match object.shape {
+                    crate::structs::object::ShapeType::Circle(r) => {
+                        painter.circle(pos2(pos.x, pos.y), r, Color32::GREEN, stroke);
+                    }
+                    crate::structs::object::ShapeType::Triangle(_, _, _) => todo!(),
+                    crate::structs::object::ShapeType::Quadrilateral(_, _, _, _) => todo!(),
+                }
+            }
         });
+
+        std::thread::sleep(std::time::Duration::from_millis(
+            (self.steps * 1000.0) as u64,
+        ));
     }
 }

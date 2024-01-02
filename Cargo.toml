@@ -3,11 +3,12 @@ name = "torqous"
 version = "0.1.0"
 edition = "2021"
 
-[dependencies]
-eframe = "0.24.1"
-
 [profile.release]
 strip = true  # Automatically strip symbols from the binary.
 opt-level = "z"
 panic = "abort"
 lto = true
+
+[dependencies]
+eframe = "0.24.1"
+egui = "0.24.1"
